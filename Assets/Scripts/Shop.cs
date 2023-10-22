@@ -37,6 +37,7 @@ public class Shop
 
     public Shop()
     {
+        
         _damageBaseCost = 20;
         _rateOfFireBaseCost = 7;
         _luckBaseCost = 50;
@@ -55,6 +56,30 @@ public class Shop
         LuckShopCost = _luckBaseCost;
         RateOfFireShopCost = _rateOfFireShopBaseCost;
         DamageShopCost = _damageShopBaseCost;
+
+        
+    }
+
+    public void SetCounts(int damageCount, int rateOfFireCount, int luckCount, int maxHealthCount)
+    {
+        _upgradeLuckShopCount = luckCount;
+        upgradeDamageShopCount = damageCount;
+        _upgradeRateOfFireShopCount = rateOfFireCount;
+        _upgradeMaxHealthCount = maxHealthCount;
+
+        LuckShopCost += _luckShopBaseCost * _upgradeLuckShopCount * 1f / 2f;
+        DamageShopCost = _damageShopBaseCost + upgradeDamageShopCount * _damageShopBaseCost / 2;
+        RateOfFireShopCost = _rateOfFireShopBaseCost + _upgradeRateOfFireShopCount * _rateOfFireShopBaseCost / 2f;
+        MaxHealthCost += _maxHealthBaseCost * _upgradeMaxHealthCount;
+
+    }
+
+    public void SaveCounts(ref GameData data)
+    {
+        data.damageCount = upgradeDamageShopCount;
+        data.luckCount = _upgradeLuckShopCount;
+        data.rateOfFireCount = _upgradeRateOfFireShopCount;
+        data.maxHealthCount = _upgradeMaxHealthCount;
     }
 
     public void UpdateDamageCost()
@@ -87,7 +112,7 @@ public class Shop
     public void UpdateLuckShopCost()
     {
         _upgradeLuckShopCount++;
-        LuckShopCost += _luckShopBaseCost;
+        LuckShopCost += _luckShopBaseCost * _upgradeLuckShopCount * 1f/2f;
     }
 
     public void UpdateRateOfFireShopCost()

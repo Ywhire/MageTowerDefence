@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class ProjectileSpawner : MonoBehaviour
+public class ProjectileSpawner : MonoBehaviour , IData
 {
     private float _rateOfFire ;
     [field:SerializeField]
@@ -11,19 +11,24 @@ public class ProjectileSpawner : MonoBehaviour
 
     private float _totalPassedTime;
 
-    private int _baseDamage = 5;
+    private int _baseDamage;
 
     private float _totalDamage;
-    private float _baseRateOfFire = 2f;
+    private float _baseRateOfFire ;
 
     private void Awake()
+    {
+            
+    }
+
+    private void Start()
     {
         _totalDamage = _baseDamage;
         _rateOfFire = _baseRateOfFire;
         UIHandler.Instance.RepaintDamage(_totalDamage);
         UIHandler.Instance.RepaintBaseDamage(_totalDamage);
         UIHandler.Instance.RepaintRateOfFire(_rateOfFire);
-        UIHandler.Instance.RepaintBaseRateOfFire(_rateOfFire);      
+        UIHandler.Instance.RepaintBaseRateOfFire(_rateOfFire);
     }
 
     private void Update()
@@ -57,7 +62,6 @@ public class ProjectileSpawner : MonoBehaviour
     public void UpgradeTotalDamage(int upgradeCount)
     {
         _totalDamage = _baseDamage + _baseDamage * upgradeCount * 1f / 20f;
-        Debug.Log("Damage:" + _totalDamage);
         UIHandler.Instance.RepaintDamage(_totalDamage);
     }
 
@@ -70,6 +74,18 @@ public class ProjectileSpawner : MonoBehaviour
     public void UpgradeBaseRateOfFire()
     {
         _baseRateOfFire -= 1f / 50f;
-        UIHandler.Instance.RepaintBaseRateOfFire(_rateOfFire);
+        UIHandler.Instance.RepaintBaseRateOfFire(_baseRateOfFire);
+    }
+
+    public void LoadData(GameData data)
+    {
+        _baseRateOfFire = data.rateOfFire;
+        _baseDamage = data.damage;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.rateOfFire = _baseRateOfFire;
+        data.damage = _baseDamage;
     }
 }

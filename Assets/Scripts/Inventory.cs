@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour, IData
 {
-    public float Gold { get; private set; } = 10000;
-    public float MagicDust { get; private set; } = 10000;
+    public float Gold { get; private set; }
+    public float MagicDust { get; private set; }
     public float LuckIncreaseValue { get; private set; }
 
     [field: SerializeField]
@@ -13,23 +13,39 @@ public class Inventory : MonoBehaviour
     public PlayerHealth PlayerHealth { get; private set; }  
     [field:SerializeField]
     public Targeter Targeter { get; private set; }
+    public bool tutorial;
 
-    private Shop Shop;
+    private Shop Shop = new Shop();
     private float Luck;
     private float _baseLuck;
 
-    private void Awake()
+
+    private void Start()
     {
-        Shop = new Shop();
         LuckIncreaseValue = 0.1f;
         Luck = _baseLuck;
         UIHandler.Instance.RepaintCosts(Shop.DamageCost, Shop.RateOfFireCost, Shop.LuckCost, Shop.GainHealthAmount, Shop.HealthGainCost);
         UIHandler.Instance.RepaintMaterial(Gold, MagicDust);
         UIHandler.Instance.RepaintBaseLuck(_baseLuck);
         UIHandler.Instance.RepaintLuck(Luck);
-    }
-    private void Start()
-    {
+
+        UIHandler.Instance.RepaintMaxHealthCost(Shop.MaxHealthCost);
+        UIHandler.Instance.RepaintLuckShopCost(Shop.LuckShopCost);
+        UIHandler.Instance.RepaintRateOfFireShopCost(Shop.RateOfFireShopCost);
+        UIHandler.Instance.RepaintDamageShopCost(Shop.DamageShopCost);
+
+        if (tutorial)
+        {
+            UIHandler.Instance.BeginPanel.gameObject.SetActive(true);
+            tutorial = false;
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            UIHandler.Instance.BeginPanel.gameObject.SetActive(false);
+        }
+
         if (MagicDust < Shop.DamageCost)
         {
             UIHandler.Instance.SpellDamageButton.interactable = false;
@@ -59,6 +75,38 @@ public class Inventory : MonoBehaviour
         else
         {
             UIHandler.Instance.SpellDamageShopButton.interactable = true;
+        }
+        if (Gold < Shop.RateOfFireShopCost)
+        {
+            UIHandler.Instance.RateOfFireShopButton.interactable = false;
+        }
+        else
+        {
+            UIHandler.Instance.RateOfFireShopButton.interactable = true;
+        }
+        if (Gold < Shop.LuckShopCost)
+        {
+            UIHandler.Instance.LuckShopButton.interactable = false;
+        }
+        else
+        {
+            UIHandler.Instance.LuckShopButton.interactable = true;
+        }
+        if (Gold < Shop.LuckShopCost)
+        {
+            UIHandler.Instance.LuckShopButton.interactable = false;
+        }
+        else
+        {
+            UIHandler.Instance.LuckShopButton.interactable = true;
+        }
+        if (Gold < Shop.MaxHealthCost)
+        {
+            UIHandler.Instance.HealthShopButton.interactable = false;
+        }
+        else
+        {
+            UIHandler.Instance.HealthShopButton.interactable = true;
         }
 
 
@@ -114,7 +162,7 @@ public class Inventory : MonoBehaviour
 
     private void DecreaseGold(int value)
     {
-        //Seriliazation will be addded
+        
         if (value == 0)
         {
             Gold -= Shop.MaxHealthCost;
@@ -217,5 +265,19 @@ public class Inventory : MonoBehaviour
         MagicDust += magicDust + extraMagicDust;
         UIHandler.Instance.RepaintMaterial(Gold, MagicDust);
         e.Loot -= IncreaseMaterial;
+    }
+
+    public void LoadData(GameData data)
+    {
+        Shop.SetCounts(data.damageCount, data.rateOfFireCount, data.luckCount, data.maxHealthCount);
+        Gold = data.gold;
+        tutorial = data.tutorialBool;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        Shop.SaveCounts(ref data);
+        data.gold = Gold;
+        data.tutorialBool = tutorial;
     }
 }

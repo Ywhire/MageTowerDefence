@@ -33,6 +33,7 @@ public class Targeter : MonoBehaviour
 
     private void RemoveTarget(Transform target)
     {
+        Debug.Log("remove Tartget" + target) ;
         targets.Remove(target);
         target.GetComponent<Enemy>().DestroyEvent -= RemoveTarget;
     }

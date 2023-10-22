@@ -15,8 +15,6 @@ public class MonsterSpawner : MonoBehaviour
     [field: SerializeField]
     public List<Transform> SpawnPoints { get; private set; }
 
-    [field: SerializeField, Header("Info UI")]
-    public TMPro.TMP_Text TMPWave { get; private set; }
 
     private int _waveCount;
 
@@ -31,7 +29,7 @@ public class MonsterSpawner : MonoBehaviour
     {
         _enemySpawnCount = _enemyCount = defaultEnemyCount;
         _waveCount = 1;
-        TMPWave.text = "Wave: " + _waveCount + "/10";
+        UIHandler.Instance.RepaintWave(_waveCount);
     }
     private void Update()
     {
@@ -41,6 +39,7 @@ public class MonsterSpawner : MonoBehaviour
 
         if (timer > SpawnTime && _enemySpawnCount > 0)
         {
+    
             timer = 0f;
             var index = Random.Range(0,SpawnPoints.Count);
             var e = Instantiate(SpawnObject, SpawnPoints[index].position , Quaternion.identity);
@@ -70,13 +69,19 @@ public class MonsterSpawner : MonoBehaviour
     {
         
         _waveCount++;
+        if (_waveCount == 11)
+        {
+            UIHandler.Instance.Victory();
+            return;
+        }
+
         _enemyCount = defaultEnemyCount + Random.Range(defaultEnemyCount * _waveCount / 2, 
             defaultEnemyCount * _waveCount);
         _enemySpawnCount = _enemyCount;
 
         SpawnTime -= SpawnTime * 25 / 100;
 
-        TMPWave.text = "Wave: " + _waveCount + "/10";
+        UIHandler.Instance.RepaintWave(_waveCount);
     }
 
     

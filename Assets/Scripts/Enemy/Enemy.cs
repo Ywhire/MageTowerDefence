@@ -6,14 +6,13 @@ public class Enemy : MonoBehaviour
 {
     [field: SerializeField]
     public float HealthMaxAmount { get; private set; }
-    private float _healthAmount;
-
+    [field: SerializeField]
+    public Animator Animator{ get; private set; }
     [SerializeField]
     private Slider _slider;
     
     private Camera _camera;
-    [SerializeField]
-    private Transform _target;
+    
     [SerializeField]
     private Transform _sliderTransform;
     [field: SerializeField]
@@ -24,6 +23,11 @@ public class Enemy : MonoBehaviour
     public Action<int, int, Enemy> Loot;
 
     private bool _killed = true;
+    private float _healthAmount;
+    
+
+    private int DieAnim = Animator.StringToHash("Die");
+    
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))
@@ -32,6 +36,7 @@ public class Enemy : MonoBehaviour
         }
         other.GetComponent<PlayerHealth>().DealDamage(BaseDamage);
         _killed = false;
+        DestroyEvent?.Invoke(transform);
         Destroy(gameObject);
     }
     private void Start()
@@ -49,7 +54,6 @@ public class Enemy : MonoBehaviour
     }
     private void OnDestroy()
     {
-        DestroyEvent?.Invoke(transform);
         if (_killed)
         {
             var gold = UnityEngine.Random.Range(0, Convert.ToInt32(HealthMaxAmount / 2));
@@ -72,7 +76,8 @@ public class Enemy : MonoBehaviour
         if (_healthAmount <= 0f)
         {
             //Enemy is dead
-            Destroy(gameObject);
+            Animator.Play(DieAnim);
+            DestroyEvent.Invoke(transform);
         } 
     }
 

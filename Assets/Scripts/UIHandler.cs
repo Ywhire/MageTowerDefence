@@ -17,9 +17,11 @@ public class UIHandler : MonoBehaviour
     
     [field: SerializeField]
     public TMPro.TMP_Text MagicDust_TMP { get; private set; }
+    [field: SerializeField]
+    public TMPro.TMP_Text TMPWave { get; private set; }
 
-    
-    
+
+
     [field: SerializeField, Header("Begin UI")]
     public Button BeginButton { get; private set; }
 
@@ -50,6 +52,9 @@ public class UIHandler : MonoBehaviour
     [field: SerializeField]
     public Button RestartButton { get; private set; }
 
+    [field:SerializeField]
+    public Button FightButton { get; private set; }
+
     [field: SerializeField]
     public Button GMainMenuButton { get; private set; }
 
@@ -58,6 +63,21 @@ public class UIHandler : MonoBehaviour
     
     [field: SerializeField]
     public Button ShopButton { get; private set; }
+
+
+
+    [field: SerializeField, Header("Victory UI")]
+    public RectTransform VictoryPanel { get; private set; }
+
+    [field: SerializeField]
+    public Button VRestartButton { get; private set; }
+
+    [field: SerializeField]
+    public Button VMainMenuButton { get; private set; }
+
+    [field: SerializeField]
+    public Button VQuitButton { get; private set; }
+
 
 
 
@@ -161,14 +181,16 @@ public class UIHandler : MonoBehaviour
             Instance = this;
         }
 
-        BeginPanel.gameObject.SetActive(true);
+        
         PausePanel.gameObject.SetActive(false);
         GameOverPanel.gameObject.SetActive(false);
         ShopPanel.gameObject.SetActive(false);
-        UpgradePanel.gameObject.SetActive(false);
+        UpgradePanel.gameObject.SetActive(true);
+        VictoryPanel.gameObject.SetActive(false);
     }
     private void OnEnable()
     {
+
         BeginButton.onClick.AddListener(Begin);
         PauseButton.onClick.AddListener(PauseOpen);
         PauseCloseButton.onClick.AddListener(PauseClose);
@@ -177,7 +199,12 @@ public class UIHandler : MonoBehaviour
         RestartButton.onClick.AddListener(Restart);
         GMainMenuButton.onClick.AddListener(GoToMainMenu);
         GQuitButton.onClick.AddListener(Exit);
-        
+        FightButton.onClick.AddListener(Fight);
+
+        VRestartButton.onClick.AddListener(Restart);
+        VMainMenuButton.onClick.AddListener(GoToMainMenu);
+        VQuitButton.onClick.AddListener(Exit);
+
         SpellDamageButton.onClick.AddListener(UpgradeDamage);
         RateOfFireButton.onClick.AddListener(UpgradeRateOfFire);
         LuckButton.onClick.AddListener(UpgradeLuck);
@@ -203,7 +230,12 @@ public class UIHandler : MonoBehaviour
         RestartButton.onClick.RemoveListener(Restart);
         GMainMenuButton.onClick.RemoveListener(GoToMainMenu);
         GQuitButton.onClick.RemoveListener(Exit);
-        
+        FightButton.onClick.RemoveListener(Fight);
+
+        VRestartButton.onClick.RemoveListener(Restart);
+        VMainMenuButton.onClick.RemoveListener(GoToMainMenu);
+        VQuitButton.onClick.RemoveListener(Exit);
+
         SpellDamageButton.onClick.RemoveListener(UpgradeDamage);
         RateOfFireButton.onClick.RemoveListener(UpgradeRateOfFire);
         LuckButton.onClick.RemoveListener(UpgradeLuck);
@@ -220,7 +252,6 @@ public class UIHandler : MonoBehaviour
     private void Start()
     {
 
-        Time.timeScale = 0f;
     }
 
     public void RepaintCosts(int damageCost, float rateOfFireCost, float luckCost, int gainHealthAmount, float healthGainCost)
@@ -309,6 +340,10 @@ public class UIHandler : MonoBehaviour
         TMPLuck.text = luck.ToString();
     }
 
+    public void RepaintWave(int wave)
+    {
+        TMPWave.text = "Wave: " + wave + "/10";
+    }
 
     public void GameOver()
     {
@@ -316,6 +351,27 @@ public class UIHandler : MonoBehaviour
         Time.timeScale = 0f;
 
         PauseButton.interactable = false;
+    }
+
+    public void Victory()
+    {
+        PauseButton.interactable = false;
+        VictoryPanel.gameObject.SetActive(true);
+        Time.timeScale = 0f;
+        // Delete Everything
+        DataManager.Instance.NewGame(true);
+    }
+
+    private void Fight()
+    {
+        ShopPanel.gameObject.SetActive(false);
+        GameOverPanel.gameObject.SetActive(false);
+        UpgradePanel.gameObject.SetActive(true);
+
+        //Save Every Shop Upgrade Progress 
+        DataManager.Instance.SaveGame();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(1);
     }
 
     private void Begin()
@@ -331,10 +387,15 @@ public class UIHandler : MonoBehaviour
     }
     private void GoToMainMenu()
     {
+        DataManager.Instance.SaveGame();
+        Time.timeScale = 1f;
         SceneManager.LoadScene(0);
+        
     }
     private void Restart()
     {
+        DataManager.Instance.NewGame(true);
+        Time.timeScale = 1f;
         SceneManager.LoadScene(1);
     }
     private void OpenShop()

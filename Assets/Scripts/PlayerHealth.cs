@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, IData
 {
 
     [field: SerializeField]
@@ -44,4 +44,13 @@ public class PlayerHealth : MonoBehaviour
         
     }
 
+    public void LoadData(GameData data)
+    {
+        data.maxHealth = MaxAmount;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        MaxAmount = data.maxHealth;
+    }
 }
